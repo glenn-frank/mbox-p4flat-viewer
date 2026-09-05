@@ -97,12 +97,14 @@ input[type=range]{width:100%;height:28px;accent-color:var(--accent)}
 <script>
 (function(){
 const PARTS = [
+ // explode vectors are model-space mm at Separation 100% before EXPLODE_SCALE
+ // +Z up, +Y toward rear (jack face). Axes match real disassembly only.
  {id:'body', name:'Body', file:'p4flat_body.stl', color:0x6b8cae, explode:[0,0,0]},
- {id:'top', name:'Top', file:'p4flat_top.stl', color:0x54b3ff, explode:[0,0,40]},
- {id:'plate', name:'Base plate', file:'p4flat_plate.stl', color:0x7ee29a, explode:[0,0,-36]},
- {id:'rear', name:'Rear panel', file:'p4flat_rear.stl', color:0xe8c67e, explode:[0,48,0]},
- {id:'screen', name:'Screen mock', file:'p4flat_screen_mock.stl', color:0xb39ddb, explode:[0,-24,18]},
- {id:'board', name:'Board mock', file:'p4flat_board_mock.stl', color:0xe89a9a, explode:[0,0,-28]},
+ {id:'top', name:'Top', file:'p4flat_top.stl', color:0x54b3ff, explode:[0,0,42]},
+ {id:'screen', name:'Screen mock', file:'p4flat_screen_mock.stl', color:0xb39ddb, explode:[0,0,42]},
+ {id:'plate', name:'Base plate', file:'p4flat_plate.stl', color:0x7ee29a, explode:[0,0,-42]},
+ {id:'board', name:'Board mock', file:'p4flat_board_mock.stl', color:0xe89a9a, explode:[0,0,-36]},
+ {id:'rear', name:'Rear panel', file:'p4flat_rear.stl', color:0xe8c67e, explode:[0,55,0]},
 ];
 const VERSIONS = {
  v2: {label:'v2 - top ring', sub:'RP_Z1=33 · screws 8.5/27 · ~8 mm rear lintel',
