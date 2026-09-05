@@ -13,18 +13,21 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--
  font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
  touch-action:none}
 #c{position:absolute;inset:0}
-#ui{position:absolute;left:10px;top:10px;right:10px;max-width:340px;z-index:5;
+#toggleUi{position:absolute;left:10px;top:10px;z-index:6;min-height:44px;min-width:44px;
+ padding:10px 14px;border-radius:12px;border:1px solid var(--line);
+ background:#151a21ee;color:var(--fg);font-size:14px;font-weight:650;cursor:pointer;
+ backdrop-filter:blur(8px)}
+#toggleUi:active{opacity:.85}
+#ui{position:absolute;left:10px;top:62px;right:10px;max-width:340px;z-index:5;
  background:#151a21ee;border:1px solid var(--line);border-radius:12px;padding:12px 14px;
- backdrop-filter:blur(8px);max-height:calc(100% - 20px);overflow-y:auto}
+ backdrop-filter:blur(8px);max-height:calc(100% - 72px);overflow-y:auto}
+#ui.collapsed{display:none}
 #ui h1{margin:0 0 2px;font-size:15px;font-weight:650}
 #ui .sub{color:var(--dim);font-size:11.5px;margin:0 0 10px}
 .tabs{display:flex;gap:6px;margin:0 0 10px}
 .tab{flex:1;min-height:44px;border-radius:9px;border:1px solid var(--line);
  background:var(--panel2);color:var(--dim);font-size:14px;font-weight:600;cursor:pointer}
 .tab.on{border-color:var(--accent);color:#fff;background:#20304a}
-.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:99px;
- background:#1d4b2a;color:var(--ok);font-weight:700;letter-spacing:.4px;margin-left:4px}
-.badge.v1{background:#4b3a1d;color:var(--warn)}
 .sect{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);
  margin:12px 0 6px}
 .part{display:flex;align-items:center;gap:10px;min-height:40px;padding:2px 0;
@@ -51,7 +54,8 @@ input[type=range]{width:100%;height:28px;accent-color:var(--accent)}
 <body>
 <div id="c"></div>
 <div id="load">Loading meshes…</div>
-<div id="ui">
+<button type="button" id="toggleUi" aria-expanded="false" aria-controls="ui">Controls</button>
+<div id="ui" class="collapsed">
  <h1>p4flat compare</h1>
  <p class="sub">Orbit with one finger. Pinch to zoom. Two-finger drag to pan.</p>
  <div class="tabs">
@@ -66,10 +70,11 @@ input[type=range]{width:100%;height:28px;accent-color:var(--accent)}
  <div class="row">
  <button type="button" class="btn on" id="spin">Auto-rotate</button>
  <button type="button" class="btn" id="reset">Reset view</button>
+ <button type="button" class="btn" id="hideUi">Hide panel</button>
  </div>
 </div>
 <div id="ver"><b id="verLabel">v2 - top ring</b><span id="verSub">RP_Z1=33 · screws 8.5/27 · ~8 mm rear lintel</span></div>
-<div id="hud">Same Wi-Fi as Mac · drag to orbit · pinch zoom</div>
+<div id="hud">Drag to orbit · pinch zoom · tap Controls for parts / v1-v2</div>
 
 <script src="three.min.js"></script>
 <script src="OrbitControls.js"></script>
@@ -90,6 +95,18 @@ const VERSIONS = {
  v1: {label:'v1 - baseline', sub:'RP_Z1=39 · screws 8.5/35 · ~2 mm rear lintel',
  badge:'v1', base:'v1/'},
 };
+
+const ui = document.getElementById('ui');
+const toggleUi = document.getElementById('toggleUi');
+function setUiOpen(open){
+ ui.classList.toggle('collapsed', !open);
+ toggleUi.setAttribute('aria-expanded', open ? 'true' : 'false');
+ toggleUi.textContent = open ? 'Hide' : 'Controls';
+}
+toggleUi.onclick = ()=> setUiOpen(ui.classList.contains('collapsed'));
+document.getElementById('hideUi').onclick = ()=> setUiOpen(false);
+// phone: start collapsed so the model is usable; wider screens can open
+if(window.matchMedia('(min-width: 720px)').matches) setUiOpen(true);
 
 const host = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({antialias:true, alpha:false});
@@ -125,14 +142,13 @@ const rim = new THREE.DirectionalLight(0xffe0b0, 0.25);
 rim.position.set(40, 140, -60); scene.add(rim);
 
 const root = new THREE.Group();
-// STL Y-up-ish from our gen is Z-up; map Z-up to three Y-up for nicer phone orbit
 root.rotation.x = -Math.PI/2;
 scene.add(root);
 
 const loader = new THREE.STLLoader();
 let current = 'v2';
 let explode = 0;
-const meshes = {}; // id -> {mesh, base, exp}
+const meshes = {};
 
 function pathFor(ver, file){ return VERSIONS[ver].base + file; }
 
@@ -210,7 +226,6 @@ function fitCamera(){
  if(box.isEmpty()) return;
  const size = box.getSize(new THREE.Vector3());
  const center = box.getCenter(new THREE.Vector3());
- // center is in root local; convert to world
  root.localToWorld(center);
  const maxDim = Math.max(size.x, size.y, size.z);
  const dist = maxDim * 1.55;
@@ -219,7 +234,6 @@ function fitCamera(){
  controls.update();
 }
 
-// UI parts list
 const partsEl = document.getElementById('parts');
 PARTS.forEach(p=>{
  const row = document.createElement('label');
