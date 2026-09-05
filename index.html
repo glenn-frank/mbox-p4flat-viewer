@@ -41,7 +41,15 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--
 .btn:active{opacity:.85}
 label.sl{display:block;font-size:12px;color:var(--dim);margin:4px 0 2px}
 input[type=range]{width:100%;height:28px;accent-color:var(--accent)}
-#hud{position:absolute;left:12px;bottom:10px;right:12px;color:var(--dim);font-size:11px;
+#bottomBar{position:absolute;left:10px;right:10px;bottom:max(10px, env(safe-area-inset-bottom));
+ z-index:6;background:#151a21f2;border:1px solid var(--line);border-radius:14px;
+ padding:10px 14px 12px;backdrop-filter:blur(10px);pointer-events:auto}
+#bottomBar .slrow{display:flex;align-items:center;gap:12px}
+#bottomBar .sllabel{flex:none;font-size:13px;font-weight:650;color:var(--fg);min-width:5.5em}
+#bottomBar input[type=range]{flex:1;height:32px;margin:0;accent-color:var(--accent)}
+#bottomBar .slval{flex:none;font-size:12px;color:var(--dim);min-width:2.6em;text-align:right;
+ font-variant-numeric:tabular-nums}
+#hud{position:absolute;left:12px;bottom:calc(78px + env(safe-area-inset-bottom));right:12px;color:var(--dim);font-size:11px;
  pointer-events:none;text-shadow:0 1px 2px #000;z-index:4}
 #ver{position:absolute;right:12px;top:12px;z-index:4;text-align:right;
  pointer-events:none;text-shadow:0 1px 2px #000}
@@ -67,9 +75,6 @@ input[type=range]{width:100%;height:28px;accent-color:var(--accent)}
  </div>
  <div class="sect">Parts</div>
  <div id="parts"></div>
- <div class="sect">Explode</div>
- <label class="sl" for="explode">Separation</label>
- <input type="range" id="explode" min="0" max="100" value="0">
  <div class="row">
  <button type="button" class="btn on" id="spin">Auto-rotate</button>
  <button type="button" class="btn" id="reset">Reset view</button>
@@ -77,6 +82,13 @@ input[type=range]{width:100%;height:28px;accent-color:var(--accent)}
  </div>
 </div>
 <div id="ver"><b id="verLabel">v2 - top ring</b><span id="verSub">RP_Z1=33 · screws 8.5/27 · ~8 mm rear lintel</span></div>
+<div id="bottomBar">
+ <div class="slrow">
+ <span class="sllabel">Separation</span>
+ <input type="range" id="explode" min="0" max="100" value="0" aria-label="Separation">
+ <span class="slval" id="explodeVal">0%</span>
+ </div>
+</div>
 <div id="hud">Drag to orbit · pinch zoom · Recenter if it drifts</div>
 
 <script src="three.min.js"></script>
@@ -266,9 +278,15 @@ partsEl.addEventListener('change', e=>{
 
 document.getElementById('tabV2').onclick = ()=> loadVersion('v2');
 document.getElementById('tabV1').onclick = ()=> loadVersion('v1');
-document.getElementById('explode').oninput = e=>{
- explode = +e.target.value; applyExplode();
-};
+const explodeEl = document.getElementById('explode');
+const explodeVal = document.getElementById('explodeVal');
+function setExplode(v){
+ explode = +v;
+ explodeEl.value = explode;
+ explodeVal.textContent = explode + '%';
+ applyExplode();
+}
+explodeEl.oninput = e=> setExplode(e.target.value);
 const spinBtn = document.getElementById('spin');
 spinBtn.classList.remove('on');
 spinBtn.onclick = function(){
@@ -276,9 +294,7 @@ spinBtn.onclick = function(){
  this.classList.toggle('on', controls.autoRotate);
 };
 document.getElementById('reset').onclick = ()=>{
- explode = 0;
- document.getElementById('explode').value = 0;
- applyExplode();
+ setExplode(0);
  fitCamera();
 };
 
