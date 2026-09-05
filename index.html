@@ -283,7 +283,7 @@ partsEl.addEventListener('change', e=>{
 });
 
 document.getElementById('tabV3').onclick = ()=> loadVersion('v3');
-document.getElementById('tabV2').onclick = ()=> loadVersion('v3');
+document.getElementById('tabV2').onclick = ()=> loadVersion('v2');
 document.getElementById('tabV1').onclick = ()=> loadVersion('v1');
 const explodeEl = document.getElementById('explode');
 const explodeVal = document.getElementById('explodeVal');
@@ -317,7 +317,7 @@ function tick(){
  renderer.render(scene, camera);
 }
 tick();
-loadVersion('v2');
+loadVersion('v3');
 })();
 </script>
 </body>
