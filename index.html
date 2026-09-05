@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>p4flat v1 vs v2 - phone compare</title>
+<title>p4flat v1 / v2 / v3 - phone compare</title>
 <style>
 :root{--bg:#11141a;--panel:#171b22;--panel2:#1e242e;--line:#2a323e;--fg:#e6ebf2;
  --dim:#8b97a8;--accent:#54b3ff;--ok:#7ee29a;--warn:#e8c67e}
@@ -70,7 +70,8 @@ input[type=range]{width:100%;height:28px;accent-color:var(--accent)}
  <h1>p4flat compare</h1>
  <p class="sub">Orbit with one finger. Pinch to zoom. Two-finger drag to pan.</p>
  <div class="tabs">
- <button type="button" class="tab on" id="tabV2">v2 top ring</button>
+ <button type="button" class="tab on" id="tabV3">v3 clean seat</button>
+ <button type="button" class="tab" id="tabV2">v2 top ring + lugs</button>
  <button type="button" class="tab" id="tabV1">v1 baseline</button>
  </div>
  <div class="sect">Parts</div>
@@ -81,7 +82,7 @@ input[type=range]{width:100%;height:28px;accent-color:var(--accent)}
  <button type="button" class="btn" id="hideUi">Hide panel</button>
  </div>
 </div>
-<div id="ver"><b id="verLabel">v2 - top ring</b><span id="verSub">RP_Z1=33 · screws 8.5/27 · ~8 mm rear lintel</span></div>
+<div id="ver"><b id="verLabel">v3 - clean top seat</b><span id="verSub">shelf ring only · lugs/screws out · RP_Z1=33</span></div>
 <div id="bottomBar">
  <div class="slrow">
  <span class="sllabel">Separation</span>
@@ -107,7 +108,9 @@ const PARTS = [
  {id:'rear', name:'Rear panel', file:'p4flat_rear.stl', color:0xe8c67e, explode:[0,55,0]},
 ];
 const VERSIONS = {
- v2: {label:'v2 - top ring', sub:'RP_Z1=33 · screws 8.5/27 · ~8 mm rear lintel',
+ v3: {label:'v3 - clean top seat', sub:'shelf ring only · lid lugs/screws deferred · RP_Z1=33',
+ badge:'v3', base:'v3/'},
+ v2: {label:'v2 - top ring + lugs', sub:'RP_Z1=33 · side lid lugs + top screws · ~8 mm rear lintel',
  badge:'v2', base:'v2/'},
  v1: {label:'v1 - baseline', sub:'RP_Z1=39 · screws 8.5/35 · ~2 mm rear lintel',
  badge:'v1', base:'v1/'},
@@ -164,7 +167,7 @@ root.rotation.x = -Math.PI/2;
 scene.add(root);
 
 const loader = new THREE.STLLoader();
-let current = 'v2';
+let current = 'v3';
 let explode = 0;
 const meshes = {};
 
@@ -185,6 +188,7 @@ function loadVersion(ver){
  const meta = VERSIONS[ver];
  document.getElementById('verLabel').textContent = meta.label;
  document.getElementById('verSub').textContent = meta.sub;
+ document.getElementById('tabV3').classList.toggle('on', ver==='v3');
  document.getElementById('tabV2').classList.toggle('on', ver==='v2');
  document.getElementById('tabV1').classList.toggle('on', ver==='v1');
  document.getElementById('load').classList.remove('hide');
@@ -278,7 +282,8 @@ partsEl.addEventListener('change', e=>{
  if(id && meshes[id]) meshes[id].mesh.visible = e.target.checked;
 });
 
-document.getElementById('tabV2').onclick = ()=> loadVersion('v2');
+document.getElementById('tabV3').onclick = ()=> loadVersion('v3');
+document.getElementById('tabV2').onclick = ()=> loadVersion('v3');
 document.getElementById('tabV1').onclick = ()=> loadVersion('v1');
 const explodeEl = document.getElementById('explode');
 const explodeVal = document.getElementById('explodeVal');
